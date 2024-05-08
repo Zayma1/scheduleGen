@@ -1,0 +1,31 @@
+{
+    "classes": {
+        "1": {
+            "className": "3-51",
+            "subjectGroup": "A",
+            "isScheduleDone": false
+        },
+        "2":{
+            "className": "3-52",
+            "subjectGroup": "A",
+            "isScheduleDone": false
+        }
+    },
+    "subjectGroup": {
+        "A": [["Math", "Marcio",2], ["Logica", "Evandro",5]]
+    },
+    "teachers": {
+        "1": {
+            "teacherName": "Evandro",
+            "subjectName": "Logica",
+            "hoursAlreadyBooked": []
+        },
+
+        "2": {
+            "teacherName": "Marcio",
+            "subjectName": "Math",
+            "hoursAlreadyBooked": []
+        }
+    }
+
+}
