@@ -45,9 +45,6 @@ for index, (key,value) in enumerate(data['teachers'].items()):
    allTeachers.append(
       teacher.Teacher(**value)
    )
-
-
-print(allClasses[0].subjectGroup.subjects)
 #---End Set data
 
 
@@ -80,4 +77,7 @@ def checkClassesSchedule():
 
 #while isAllClassesDone != True or attemps == 0:
    #for index, value in enumerate(allClasses):
-      
+allClasses[0].schedule[0].append(teacher.Teacher("Marcio", "Math", 2))
+allClasses[0].schedule[0].append(teacher.Teacher("Marcio", "Math", 2))
+allClasses[0].schedule[0].append(teacher.Teacher("Evandro", "Logica", 2))
+print(allClasses[0].checkAmountOfClasses())
