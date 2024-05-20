@@ -7,12 +7,14 @@
         },
         "2":{
             "className": "3-52",
-            "subjectGroup": "A",
+            "subjectGroup": "B",
             "isScheduleDone": false
         }
     },
     "subjectGroup": {
-        "A": [["Math", "Marcio",2], ["Logica", "Evandro",5]]
+        "A": [["Math", "Marcio",1], ["Logica", "Evandro",3],["Sistema", "Eloy",2]],
+        "B": [["Math", "Marcio",1], ["Logica", "Evandro",1],["Sistema", "Eloy",1]]
+        
     },
     "teachers": {
         "1": {

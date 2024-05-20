@@ -1,5 +1,6 @@
 
 import teacher
+from time import sleep
 
 
 class Classes():
@@ -12,14 +13,14 @@ class Classes():
 
     #function to check if all the days are agree, that means if have 8 periods of class
     def checkScheduleBase(self):
-        amountOfClasses = 0
+        amount = 0
 
         for index, value0 in enumerate(self.schedule):
             for index, value1 in enumerate(value0):
                 if type(value1) == teacher.Teacher:
-                    amountOfClasses += 1
+                    amount += 1
         
-        return amountOfClasses
+        return amount
     
 
     #function to verify if the amount of classes are correct (classes per week)
@@ -32,6 +33,7 @@ class Classes():
         #Example: 'math': 2
         classes = {}
 
+
         #(for) to count how many classes in a week and append in classes
         for index0, subjects in enumerate(subjectgroup.subjects):
              count = 0
@@ -39,28 +41,33 @@ class Classes():
              for index1, scheduleDays in enumerate(classSchedule):
                 for index2, teachers in enumerate(scheduleDays):
                     if type(teachers) == teacher.Teacher:
-                        if teachers.subjectName == subjects[0]:
+                        if teachers.teacherName == subjects[1]:
                             count += 1
-                            name = teachers.subjectName
-
-             classes.update({name:count})
+                            name = teachers.teacherName
+                
+                            classes.update({name:count})
 
         #(for) to verify if number of classes are correct
         #that verification is based on third parameter of subjects from subjectGroup class
         #(subjectGroup.subjects[2] <- third parameter)
+        
+        
         for index, (subject, amount) in enumerate(classes.items()):
-            for index1, subjects in enumerate(subjectgroup):
-                if subjects[0] == subject:
-                    if subject > subject[2]:
+            for index1, subjects in enumerate(subjectgroup.subjects):
+                if subjects[1] == subject:
+                    if amount > subjects[2]:
                         #Parameters below: 
                         #first parameter: False = amount is not correct
                         #second parameter: difference beetwen
                         #third parameter: True or False = difference is higher(true) or lower(false)
-                        return [False, subject - subjects[2], True]
+                        teacherToReturn = teacher.Teacher(subjects[1],subjects[0],subjects[2])
+                        return [teacherToReturn, amount - subjects[2], True]
                     if amount < subjects[2]:
-                        return [False, subjects[2] - amount, False]
+                        teacherToReturn = teacher.Teacher(subjects[1],subjects[1],subjects[2])
+                        return [teacherToReturn, subjects[2] - amount, False]
+        return True     
 
-        return True        
+   
             
     
     
