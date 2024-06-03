@@ -12,7 +12,7 @@
         }
     },
     "subjectGroup": {
-        "A": [["Math", "Marcio",1], ["Logica", "Evandro",3],["Sistema", "Eloy",2]],
+        "A": [["Math", "Marcio",1], ["Logica", "Evandro",3],["Sistema", "Eloy",2],["History","Darlan",2],["Manuntencao","Guga",3]],
         "B": [["Math", "Marcio",1], ["Logica", "Evandro",1],["Sistema", "Eloy",1]]
         
     },
@@ -28,6 +28,11 @@
             "subjectName": "Math",
             "hoursAlreadyBooked": []
         }
+    },
+    "settings":{
+        "maxConsecutiveClasses": 3,
+        "maxClassesPerWeek": 50,
+        "minimalAmountOfClasses": 1
     }
 
 }

@@ -22,9 +22,14 @@ data = json.loads(sys.argv[1])
 allClasses = []
 allTeachers = []
 allSujectsGroups = []
+settings = {}
 
 #all os this For's are used to set all the data which generator will use to gen schedules
 #creating instances of classes (provided by JSON), and put them into a list.
+for index,(key,value) in enumerate(data['settings'].items()):
+   settings.update({key:value})
+
+
 for index, (key,value) in enumerate(data['classes'].items()):
    allClasses.append(
       classes.Classes(**value)
@@ -40,12 +45,19 @@ for index, (key,value) in enumerate(data['subjectGroup'].items()):
    for index, classesObject in enumerate(allClasses):
       if classesObject.subjectGroup == key:
          classesObject.subjectGroup = subjectGroup.SubjectsGroup(key,value)
+   
+for index, classes in enumerate(allClasses):
+   classes.setSubjectDataFromSubjectGroup()
 
-#for to set teachers data
-for index, (key,value) in enumerate(data['teachers'].items()):
-   allTeachers.append(
-      teacher.Teacher(**value)
-   )
+for index,groupName in enumerate(allSujectsGroups):
+   count = 0
+   for index, group in enumerate(groupName.subjects):
+      count += group[2]
+   
+   if(count > settings.get("maxClassesPerWeek")):
+      print("Limit of classes exceeded, but the generation will continue.")
+
+    
 #---End Set data
 
 
@@ -60,6 +72,7 @@ def getTeacher(name):
 
  #function to verify if all classes are done
 
+#function to verify how many schedules are done
 def checkClassesSchedule():
    i = 0 
    global isAllClassesDone
@@ -79,53 +92,43 @@ def checkClassesSchedule():
    
 def printTeachers(AClass):
    for index, day in enumerate(AClass):
+      print(f"DIA: {index}")
       for index2, teachers in enumerate(day):
          print(f"TEACHER: {teachers.teacherName}")
+      
+
 
 #---End Functions
 
 #---Start Gen
 
 while isAllClassesDone != True or attemps == 0:
-      for index, value in enumerate(allClasses):
+      for index, classes in enumerate(allClasses):
          #using checkingAmountOfClasses to verify if the amount of classes are correct
-         checkAmountofClasses = value.checkAmountOfClasses()
+         checkAmountofClasses = classes.checkAmountOfClasses()
 
          #if the amount of classes are != True, so it ill return a vector.
          #the vector contains the amount of classes is needed to add or remove, and 
          #the teacher.
          if checkAmountofClasses != True:
+
             moreOrLower = checkAmountofClasses[2] #more(need to remove classes) #lower(need to add more classes)
             amount = checkAmountofClasses[1]
             teacherTemp = checkAmountofClasses[0]
 
             #each For above remove or add a classes, if its False then add, then True
             # remove
+            
+            if len(classes.allWeekSubjects) <= settings.get("maxClassesPerWeek"):
+               if moreOrLower == False:
+                  print(f"Adding: {teacherTemp.teacherName}")
+                  classes.allWeekSubjects.append(teacherTemp)
 
-            if moreOrLower == False:
-               print(f"Adding: {teacherTemp.teacherName}")
-               
-               RemovedTeachers = 0
-               for index2, day in enumerate(value.schedule):
-                  for index3, teacherFromSchedule in enumerate(value.schedule[index2]):
-                        if RemovedTeachers == amount:
-                           break
-
-                        if teacherFromSchedule.teacherName == teacherTemp.teacherName:
-                           value.schedule[index2].append(teacherFromSchedule)
-                           RemovedTeachers += 1
-               
-                  
-
-            if moreOrLower == True:
-                print(f"Removing: {teacherTemp.teacherName}")
-                
-                RemovedTeachers = 0
-                for index2, day in enumerate(value.schedule):
-                  for index3, teacherFromSchedule in enumerate(value.schedule[index2]):
-                        if RemovedTeachers == amount:
-                           break
-
-                        if teacherFromSchedule.teacherName == teacherTemp.teacherName:
-                           value.schedule[index2].remove(teacherFromSchedule)
-                           RemovedTeachers += 1
+               elif moreOrLower == True:
+                  print(f"Removing: {teacherTemp.teacherName}") 
+                  classes.allWeekSubjects.remove(teacherTemp)
+            else:
+               print("ERROR OCCURED ON GENERATING CLASSES (CLASSES LIMIT EXCEED)")
+               break
+         
+    
