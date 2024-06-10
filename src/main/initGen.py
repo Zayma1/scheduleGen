@@ -6,6 +6,12 @@ import classes
 import subjectGroup
 import teacher
 import timedate
+from random import sample
+import pandas as pd
+from openpyxl import load_workbook
+import jinja2
+from math import ceil
+from os import system
 
 #---sys
 import sys
@@ -16,7 +22,14 @@ globals
 isAllClassesDone = False
 attemps = 10000
 hoursAlreadyBooked = []
+checkData = [True,"MessageError"]
+noClasses = teacher.Teacher("---","---")
+percentage = ""
 
+defaultTime = ["7h45","8h30","9h15","10h15","11h00"
+               ,"13h15","14h00","14h45","15h45","16h30"]
+
+halfTime = ["7h45","8h30","9h15","10h15","11h00"]
 
 #---Set data
 data = json.loads(sys.argv[1])
@@ -48,28 +61,23 @@ for index, (key,value) in enumerate(data['subjectGroup'].items()):
    for index, classesObject in enumerate(allClasses):
       if classesObject.subjectGroup == key:
          classesObject.subjectGroup = subjectGroup.SubjectsGroup(key,value)
-   
-
-for index,groupName in enumerate(allSujectsGroups):
-   count = 0
-   for index, group in enumerate(groupName.subjects):
-      count += group[2]
-   
-   if(count > settings.get("maxClassesPerWeek")):
-      print("Limit of classes exceeded, but the generation will continue.")
-
-    
+       
 #---End Set data
 
 
 
 #---Functions
 
-#function to get a teacher from a classes Object
-def getTeacher(name):
-      for index, value in enumerate(allTeachers):
-         if value.teacherName == name:
-            return value
+#function to format subjects names on excel file
+def formatSubjectName(subject, teacherName):
+   name = ""
+   for c in range(len(subject)):
+      if c <= 4:
+         name += subject[c]
+   
+   name += f"({teacherName})"
+   return name
+
 
  #function to verify if all classes are done
 
@@ -100,80 +108,195 @@ def countAmountOfClasses(day,teachername):
 
    return count
 
-def checkHour(day,hour,teacher):
+#function to check if there is already a teacher with classes at that time
+def checkHour(day,hour,teachers):
    for index, dateTime in enumerate(hoursAlreadyBooked):
-      if dateTime.day == day and dateTime.hour == hour and dateTime.teacherName == teacher:
+      if dateTime.day == day and dateTime.hour == hour and dateTime.teacher.teacherName == teachers.teacherName:
          return True
    
    return False
 
-#function to help on development
-def printTeachers(AClass):
-   for index, day in enumerate(AClass):
-      print(f"========= DIA: {index} ===========")
-      for index2, teachers in enumerate(day):
-         print(f"TEACHER: {teachers.teacherName}")
-
-def printHours(hour):
-   for index, value in enumerate(hour):
-      print(f"DIA: {value.day} AULA: {value.hour} TEACHER: {value.teacherName}")
-
-def printWeekSubjects(subjects):
-   for index, value in enumerate(subjects):
-      print(f"MÁTERIA: {value.teacherName}")
-
 #---End Functions
 
-#---Start Gen
 
-while isAllClassesDone != True or attemps == 0:
-      #for loop for set subjects into classes class
-      for index, classes in enumerate(allClasses):
-         classes.setSubjects()
+#Set subjects data
+for index, classes in enumerate(allClasses):
+      classes.setSubjects()
+
+#Shuffle the subjects array for all classes
+for index, classes in enumerate(allClasses):
+      classes.allWeekSubjects = sample(classes.allWeekSubjects,len(classes.allWeekSubjects))
+
+
+#checking if a teacher has more classes per week than allowed and if a group of subjects has more classes than allowed too
+#checking if there a duplicated teacher in a group
+for index, groups in enumerate(allSujectsGroups):
+      countGroupClasses = 0
+      for index2, subjects in enumerate(groups.subjects):
+         count = 0
+         teacher = subjects
+         countClasses = 0
+         
+         countGroupClasses += subjects[2]
+         for index3, classes in enumerate(allClasses):
+            for index4, teachers in enumerate(classes.allWeekSubjects):
+               if teachers.teacherName == teacher[1]:
+                  countClasses += 1
       
-      #for to organize the subjects
-      for index, classes in enumerate(allClasses):
-         for index3, day in enumerate(classes.schedule):
-            for index2, subject in enumerate (classes.allWeekSubjects):
-               if len(classes.schedule[index3 - 1]) >= 10 or index3 == 0:
-                  if len(day) < 10:
-                     if checkHour(index3,len(day) + 1,subject.teacherName) == False:
-                        hour = len(day) + 1
-                        teacherCount = countAmountOfClasses(classes.allWeekSubjects,subject.teacherName)
-                        if teacherCount > 1:
-                           amountOfConsecutiveClasses = 0
-                           for index4, tempSubject in enumerate(classes.allWeekSubjects):
-                              if tempSubject.teacherName == subject.teacherName and amountOfConsecutiveClasses <= settings.get("maxConsecutiveClasses"):
-                                 if len(day) < 10:
-                                    timeDate = timedate.timeDate(index3,hour,subject.teacherName)
-                                    day.append(subject)
-                                    hoursAlreadyBooked.append(timeDate)
-                                    classes.allWeekSubjects.remove(tempSubject)
-                                    amountOfConsecutiveClasses += 1
-                        else:
-                           timeDate = timedate.timeDate(index3,hour,subject.teacherName)
-                           day.append(subject)
-                           hoursAlreadyBooked.append(timeDate)
-                           classes.allWeekSubjects.remove(subject)
-                           amountOfConsecutiveClasses += 1
+         for index5, subjects2 in enumerate(groups.subjects):
+            if subjects2[0].capitalize() == teacher[0].capitalize() and subjects2[1].capitalize() == teacher[1].capitalize():
+                  count += 1 
+         
+         if countClasses > settings.get("maxClassesPerWeek"):
+            checkData[0] = False
+            checkData[1] = f"ERROR: LIMIT OF CLASSES PER WEEK WAS EXCEED. teacher: {teacher[1]}"
+         
+         if count > 1:
+            checkData[0] = False
+            checkData[1] = f"ERROR: Duplicated teachers at group: {groups.groupName} TEACHER: {teacher}"
 
-      print(f"TURMA: {allClasses[0].className} ")
-      printTeachers(allClasses[0].schedule)
-      print("==================================")
-      print(f"TURMA: {allClasses[1].className} ")
-      printTeachers(allClasses[1].schedule)
-      print("===================== HORARIOS =================")
-      printHours(hoursAlreadyBooked)
-      sleep(100)
+      if countGroupClasses > settings.get("maxClassesPerWeek"):
+          checkData[0] = False
+          checkData[1] = f"ERROR: THERES A GROUP WITH MORE CLASSES PER WEEK THAN ALLOWED"
 
+#checking if amount of classes per week is greater than allowed
+for index,group in enumerate(allSujectsGroups):
+   count = 0
+   for index, subjects in enumerate(group.subjects):
+      count += subjects[2]
+   
+   if(count > settings.get("maxClassesPerWeek")):
+      checkData[0] = False
+      checkData[1] = f"Limit of classes exceeded({count}) on group({group.groupName}) Max limit({settings.get('maxClassesPerWeek')}) stoping generation."
 
+#---START GEN
+if checkData[0] == True:
+   while attemps > 0:   
+         count = 0
+         attemps -= 1
 
-                     
-                     
-                  
-                     
-                  
+         #for to organize the subjects
+         for index, classes in enumerate(allClasses):
+            for index3, day in enumerate(classes.schedule):
+               for index2, subject in enumerate (classes.allWeekSubjects): 
+                     if len(classes.schedule[index3 - 1]) == settings.get("maxClassPerDay") or index3 == 0:
+                        if len(day) < settings.get("maxClassPerDay"):
+                           if checkHour(index3,len(day)+1,subject) == False:
+                              teachersCount = countAmountOfClasses(classes.allWeekSubjects,subject.teacherName)
+                              addedTeachers = 0
+                              if teachersCount > 1:
+                                    for index4, tempSubject in enumerate(classes.allWeekSubjects):
+                                       if tempSubject.teacherName == subject.teacherName:
+                                          if checkHour(index3,len(day)+1,subject) == False:
+                                             if addedTeachers < settings.get("maxConsecutiveClasses"):
+                                                if len(day) < settings.get("maxClassPerDay"):
+                                                   hour = len(day) + 1
+                                                   addedTeachers += 1
+                                                   day.append(tempSubject)
+                                                   datetime = timedate.timeDate(index3,hour,subject)
+                                                   hoursAlreadyBooked.append(datetime)
+                              else:
+                                    if len(day) < settings.get("maxClassPerDay"):
+                                       hour = len(day) + 1
+                                       day.append(subject)
+                                       datetime = timedate.timeDate(index3,hour,subject)
+                                       hoursAlreadyBooked.append(datetime)
+                                       addedTeachers += 1
+
+                              #removing teachers added in day from allWeekSubjects
+                              tempCount = 0
+                              for index, value in enumerate(classes.allWeekSubjects):
+                                 if tempCount < addedTeachers:
+                                    if value.teacherName == subject.teacherName:
+                                       classes.allWeekSubjects.remove(value)
+                                       tempCount += 1
+
+                             
+
+                             
+         #calc percentag of classes schedule done
+         amountOfClassesDone = 0
+         for index, classes in enumerate(allClasses):
+            if len(classes.allWeekSubjects) == 0:
+               classes.isScheduleDone = True
+               amountOfClassesDone += 1
+
+         if type(checkClassesSchedule()) == list:
+            percentage = f"{ceil((amountOfClassesDone*100)/len(allClasses))}%"
+            print(percentage)
+         else:
+            percentage = f"{ceil((amountOfClassesDone*100)/len(allClasses))}%"
+            print(percentage)
+
+         checkClassesSchedule()
+   
+   print(percentage)
+                           
+   #filling with vacant classes
+   for index, classes in enumerate(allClasses):
+      for index2, day in enumerate(classes.schedule):
+         if len(day) < settings.get("maxClassPerDay"):
+            for c in range(settings.get("maxClassPerDay")-len(day)):
+               day.append(noClasses)
+
+         
+   #GENERATE EXCEL FILE
+   dataframe = {
+      "HORARIOS": []
+   }
+
+   if settings.get("maxClassesPerWeek") == 50:
+      #gen default time
+      for c in range(5):
+         if c != 0:
+            dataframe.get("HORARIOS").append("")
+         for index, time in enumerate(defaultTime):
+            dataframe.get("HORARIOS").append(time)
+            if index == 4:
+               dataframe.get("HORARIOS").append("INTERVALO")
 
       
-        
-    
+      for index, classes in enumerate(allClasses):
+         dataframe.update({classes.className:[]})
+         
+         for index2, day in enumerate(classes.schedule):
+            if index2 != 0:
+               dataframe.get(classes.className).append("")
+            for index3, subjects in enumerate(day):
+               dataframe.get(classes.className).append(formatSubjectName(subjects.subjectName,subjects.teacherName))
+               if index3 == 4:
+                  dataframe.get(classes.className).append("")
+
+      schedule = pd.DataFrame(dataframe)
+      schedule.to_excel("src/scheduleResponse/Schedule.xlsx",index=False)
+
+      system('cls')
+      print("Generation complete. Check the 'scheduleResponse' folder.")
+
+   elif settings.get("maxClassesPerWeek") == 25:
+      #gen half time
+      for c in range(5):
+         if c != 0:
+            dataframe.get("HORARIOS").append("")
+         for index, time in enumerate(halfTime):
+            dataframe.get("HORARIOS").append(time)
+
+      for index, classes in enumerate(allClasses):
+         dataframe.update({classes.className:[]})
+         
+         for index2, day in enumerate(classes.schedule):
+            if index2 != 0:
+               dataframe.get(classes.className).append("")
+            for index3, subjects in enumerate(day):
+               dataframe.get(classes.className).append(formatSubjectName(subjects.subjectName,subjects.teacherName))
+
+      schedule = pd.DataFrame(dataframe)
+      schedule.to_excel("src/scheduleResponse/Schedule.xlsx",index=False)
+
+      system('cls')
+      print("Generation complete. Check the 'scheduleResponse' folder.")
+else:
+   print(f"GENERATION CANCELLED: {checkData[1]}")
+#---END GEN       
+
+

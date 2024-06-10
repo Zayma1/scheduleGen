@@ -32,7 +32,7 @@ def monitor_folder(folder):
     observer.join()
 
 if __name__ == "__main__":
-    folder_to_watch = 'D:\Visual Studio Code projetos\projetos\scheduleGen/JsonReciver'
+    folder_to_watch = r'src/JsonReciver'
     monitor_folder(folder_to_watch)
 
 
