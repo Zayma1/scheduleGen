@@ -1,0 +1,18 @@
+from flask import Flask,request,jsonify, send_file
+import subprocess
+import json
+
+app = Flask(__name__)
+
+@app.route("/genSchedule", methods=["POST"])
+def gen():
+    data = request.get_json()
+    data = json.dumps(data)
+    subprocess.run(["python", "src/main/initGen.py",data])
+    filePath = r"../scheduleResponse/Schedule.xlsx"
+    return send_file(filePath, as_attachment=True, mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+
+
+if __name__ == "__main__":
+    app.run(debug=True)
+

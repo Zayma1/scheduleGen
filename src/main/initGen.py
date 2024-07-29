@@ -39,32 +39,38 @@ allTeachers = []
 allSujectsGroups = []
 settings = {}
 
-
 #all os this For's are used to set all the data which generator will use to gen schedules
 #creating instances of classes (provided by JSON), and put them into a list.
 for index,(key,value) in enumerate(data['settings'].items()):
    settings.update({key:value})
 
 
-for index, (key,value) in enumerate(data['classes'].items()):
+for index, value in enumerate(data['classes']):
    allClasses.append(
       classes.Classes(**value)
    )
 
 #for to set subjectGroup data
-for index, (key,value) in enumerate(data['subjectGroup'].items()):
-   allSujectsGroups.append(
-      subjectGroup.SubjectsGroup(key,value)
-   )
+for index, value in enumerate(data['subjectGroup']):
+   temp = []
+   lastName = ""
+   for index2, (key2,value2) in enumerate(value.items()):
+      if(key2 == "subjects"):
+         for index3, value3 in enumerate(value2):
+            temp.append(list(value3.values()))
 
+         allSujectsGroups.append(
+                        subjectGroup.SubjectsGroup(lastName,temp)
+                        )    
+      lastName = value2
+      
    #for to set subjectGroup variable in class Classes
    for index, classesObject in enumerate(allClasses):
-      if classesObject.subjectGroup == key:
-         classesObject.subjectGroup = subjectGroup.SubjectsGroup(key,value)
+      for index2, subject in enumerate(allSujectsGroups):
+         if subject.groupName == classesObject.subjectGroup:
+            classesObject.subjectGroup = subject
        
 #---End Set data
-
-
 
 #---Functions
 
@@ -223,14 +229,12 @@ if checkData[0] == True:
 
          if type(checkClassesSchedule()) == list:
             percentage = f"{ceil((amountOfClassesDone*100)/len(allClasses))}%"
-            print(percentage)
          else:
             percentage = f"{ceil((amountOfClassesDone*100)/len(allClasses))}%"
-            print(percentage)
 
          checkClassesSchedule()
    
-   print(percentage)
+
                            
    #filling with vacant classes
    for index, classes in enumerate(allClasses):
@@ -293,7 +297,6 @@ if checkData[0] == True:
       schedule = pd.DataFrame(dataframe)
       schedule.to_excel("src/scheduleResponse/Schedule.xlsx",index=False)
 
-      system('cls')
       print("Generation complete. Check the 'scheduleResponse' folder.")
 else:
    print(f"GENERATION CANCELLED: {checkData[1]}")
