@@ -1,0 +1,37 @@
+{
+  "classes": {
+    "1": {
+      "className": "3-51",
+      "subjectGroup": "A",
+      "isScheduleDone": false
+    },
+    "2": {
+      "className": "3-52",
+      "subjectGroup": "A",
+      "isScheduleDone": false
+    }
+  },
+  "subjectGroup": {
+    "A": [
+      ["Matematica", "Silvana", 3],
+      ["Linguagem de Programacao", "Evandro", 3],
+      ["Sociologia", "Tarso", 3],
+      ["Programacao aplicativos", "Evandro", 3],
+      ["Sistema", "Eloy", 3],
+      ["Historia", "Walbert", 3],
+      ["Geografia", "Zeca", 2],
+      ["Filosofia", "Alex", 2],
+      ["Ed fisica", "Xuxa", 1],
+      ["PPW", "Jessica", 1]
+    ],
+    "B": [
+      ["Math", "Marcio", 0],
+      ["Logica", "Evandro", 0]
+    ]
+  },
+  "settings": {
+    "maxConsecutiveClasses": 2,
+    "maxClassesPerWeek": 25,
+    "maxClassPerDay": 5
+  }
+}

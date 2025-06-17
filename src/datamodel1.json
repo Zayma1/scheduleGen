@@ -1,0 +1,58 @@
+{
+  "classes": {
+    "1": {
+      "className": "3-51",
+      "subjectGroup": "A",
+      "isScheduleDone": false
+    },
+    "2": {
+      "className": "3-52",
+      "subjectGroup": "A",
+      "isScheduleDone": false
+    },
+    "3": {
+      "className": "3-53",
+      "subjectGroup": "A",
+      "isScheduleDone": false
+    },
+    "4": {
+      "className": "3-54",
+      "subjectGroup": "A",
+      "isScheduleDone": false
+    }
+  },
+  "subjectGroup": {
+    "A": [
+      ["Matematica", "Silvana", 1],
+      ["Linguagem de Programacao", "Evandro", 3],
+      ["Geografia", "Zeca", 2],
+      ["Ed fisica", "Xuxa", 3],
+      ["PPW", "Jessica", 3],
+      ["Modelagem", "Jessica", 3],
+      ["Fisica", "Felipe", 3],
+      ["PVIDA", "Adriana", 3],
+      ["Sociologia", "Tarso", 3],
+      ["Programacao aplicativos", "Evandro", 4],
+      ["Sistema", "Eloy", 2],
+      ["Historia", "Walbert", 1],
+      ["Teste de Software", "Edilson", 3],
+      ["Filosofia", "Alex", 4],
+      ["Ingles", "Natalia", 3],
+      ["Artes", "Joice", 3],
+      ["Quimica", "Karina", 1],
+      ["Portugues", "Marcia", 3],
+      ["Biologia", "Debora", 1],
+      ["Desenvolvimento", "Jucemar", 1]
+    ],
+    "B": [
+      ["Math", "Marcio", 0],
+      ["Logica", "Evandro", 0],
+      ["Sistema", "Eloy", 0]
+    ]
+  },
+  "settings": {
+    "maxConsecutiveClasses": 2,
+    "maxClassesPerWeek": 50,
+    "maxClassPerDay": 10
+  }
+}

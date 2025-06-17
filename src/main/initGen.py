@@ -45,33 +45,24 @@ for index,(key,value) in enumerate(data['settings'].items()):
    settings.update({key:value})
 
 
-for index, value in enumerate(data['classes']):
+for index, (key,value) in enumerate(data['classes'].items()):
    allClasses.append(
       classes.Classes(**value)
    )
 
 #for to set subjectGroup data
-for index, value in enumerate(data['subjectGroup']):
-   temp = []
-   lastName = ""
-   for index2, (key2,value2) in enumerate(value.items()):
-      if(key2 == "subjects"):
-         for index3, value3 in enumerate(value2):
-            temp.append(list(value3.values()))
+for index, (key,value) in enumerate(data['subjectGroup'].items()):
+   allSujectsGroups.append(
+      subjectGroup.SubjectsGroup(key,value)
+   )
 
-         allSujectsGroups.append(
-                        subjectGroup.SubjectsGroup(lastName,temp)
-                        )    
-      lastName = value2
-      
    #for to set subjectGroup variable in class Classes
    for index, classesObject in enumerate(allClasses):
-      for index2, subject in enumerate(allSujectsGroups):
-         if subject.groupName == classesObject.subjectGroup:
-            classesObject.subjectGroup = subject
+      if classesObject.subjectGroup == key:
+         classesObject.subjectGroup = subjectGroup.SubjectsGroup(key,value)
        
 #---End Set data
-
+       
 #---Functions
 
 #function to format subjects names on excel file
